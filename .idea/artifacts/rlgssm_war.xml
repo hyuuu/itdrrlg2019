@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="rlgssm:war">
+    <output-path>$PROJECT_DIR$/rlgssm/target</output-path>
+    <root id="archive" name="rlgssm.war">
+      <element id="artifact" artifact-name="rlgssm:war exploded" />
+    </root>
+  </artifact>
+</component>
