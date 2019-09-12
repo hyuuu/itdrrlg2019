@@ -14,6 +14,10 @@ public class Product {
 
     private String mainImage;
 
+    private String subImages;
+
+    private String detail;
+
     private BigDecimal price;
 
     private Integer stock;
@@ -68,6 +72,22 @@ public class Product {
 
     public void setMainImage(String mainImage) {
         this.mainImage = mainImage == null ? null : mainImage.trim();
+    }
+
+    public String getSubImages() {
+        return subImages;
+    }
+
+    public void setSubImages(String subImages) {
+        this.subImages = subImages == null ? null : subImages.trim();
+    }
+
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail == null ? null : detail.trim();
     }
 
     public BigDecimal getPrice() {

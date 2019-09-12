@@ -1,8 +1,9 @@
-package com.itdr.services;
+package com.itdr.services.back;
 
 import com.itdr.common.ResCode;
 import com.itdr.mappers.UserMapper;
 import com.itdr.pojo.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,7 +59,7 @@ public class UserServiceImpl implements UserService {
         // 测试事务
         int i = 1/0;
 */
-        resCode = ResCode.success(0,"更新成功");
+        resCode = ResCode.success(0,"ok");
         return resCode;
     }
 

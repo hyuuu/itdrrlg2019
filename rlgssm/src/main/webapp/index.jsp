@@ -12,5 +12,6 @@
 </head>
 <body>
     index.jsp
+<a href="http://127.0.0.1:8080/user/checkvcode.do?username=&vcode="></a>
 </body>
 </html>

@@ -7,6 +7,8 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="subtitle" jdbcType="VARCHAR" property="subtitle" />
     <result column="main_image" jdbcType="VARCHAR" property="mainImage" />
+    <result column="sub_images" jdbcType="LONGVARCHAR" property="subImages" />
+    <result column="detail" jdbcType="LONGVARCHAR" property="detail" />
     <result column="price" jdbcType="DECIMAL" property="price" />
     <result column="stock" jdbcType="INTEGER" property="stock" />
     <result column="status" jdbcType="INTEGER" property="status" />
@@ -16,22 +18,13 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.itdr.pojo.ProductWithBLOBs">
-    <result column="sub_images" jdbcType="LONGVARCHAR" property="subImages" />
-    <result column="detail" jdbcType="LONGVARCHAR" property="detail" />
-  </resultMap>
   <sql id="Base_Column_List">
-    id, category_id, name, subtitle, main_image, price, stock, status, is_new, is_hot, 
+    id, category_id, name, subtitle, main_image, sub_images, detail, price, stock, status, is_new, is_hot,
     is_banner, create_time, update_time
   </sql>
-  <sql id="Blob_Column_List">
-    sub_images, detail
-  </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from neuedu_product
     where id = #{id,jdbcType=INTEGER}
   </select>
@@ -39,7 +32,7 @@
     delete from neuedu_product
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.itdr.pojo.ProductWithBLOBs">
+  <insert id="insert" parameterType="com.itdr.pojo.Product">
     insert into neuedu_product (id, category_id, name, 
       subtitle, main_image, price, 
       stock, status, is_new, is_hot, 
@@ -51,7 +44,7 @@
       #{isBanner,jdbcType=BIT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
       #{subImages,jdbcType=LONGVARCHAR}, #{detail,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.itdr.pojo.ProductWithBLOBs">
+  <insert id="insertSelective" parameterType="com.itdr.pojo.Product">
     insert into neuedu_product
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -148,7 +141,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.itdr.pojo.ProductWithBLOBs">
+  <update id="updateByPrimaryKeySelective" parameterType="com.itdr.pojo.Product">
     update neuedu_product
     <set>
       <if test="categoryId != null">
@@ -196,7 +189,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.itdr.pojo.ProductWithBLOBs">
+  <update id="updateByPrimaryKey" parameterType="com.itdr.pojo.Product">
     update neuedu_product
     set category_id = #{categoryId,jdbcType=INTEGER},
       name = #{name,jdbcType=VARCHAR},
@@ -214,55 +207,31 @@
       detail = #{detail,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.itdr.pojo.Product">
-    update neuedu_product
-    set category_id = #{categoryId,jdbcType=INTEGER},
-      name = #{name,jdbcType=VARCHAR},
-      subtitle = #{subtitle,jdbcType=VARCHAR},
-      main_image = #{mainImage,jdbcType=VARCHAR},
-      price = #{price,jdbcType=DECIMAL},
-      stock = #{stock,jdbcType=INTEGER},
-      status = #{status,jdbcType=INTEGER},
-      is_new = #{isNew,jdbcType=BIT},
-      is_hot = #{isHot,jdbcType=BIT},
-      is_banner = #{isBanner,jdbcType=BIT},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = #{updateTime,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=INTEGER}
-  </update>
 
 
-  <select id="selectByNumAndSize" parameterType="map" resultMap="ResultMapWithBLOBs">
+  <select id="selectByNumAndSize" parameterType="map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from neuedu_product limit #{param1},#{param2}
   </select>
 
-  <select id="selectByName" parameterType="String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByName" parameterType="String" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from neuedu_product
     where name like "%"#{name}"%"
   </select>
 
-  <select id="selectByIdAndName" parameterType="map" resultMap="ResultMapWithBLOBs">
+  <select id="selectByIdAndName" parameterType="map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from neuedu_product
     where id = #{param1} and name like "%"#{param2}"%"
   </select>
 
-  <select id="search" parameterType="map" resultMap="ResultMapWithBLOBs">
+  <select id="search" parameterType="map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from neuedu_product
     <where>
       <if test="param1 != null">
@@ -278,6 +247,6 @@
   </select>
 
   <update id="updateStatusById" parameterType="map">
-    update neuedu_product set status = #{param2} where id = #{param1}
+    update neuedu_product set status = #{status} where id = #{id}
   </update>
 </mapper>

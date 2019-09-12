@@ -1,7 +1,7 @@
-package com.itdr.controllers;
+package com.itdr.controllers.back;
 
 import com.itdr.common.ResCode;
-import com.itdr.services.UserService;
+import com.itdr.services.back.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;

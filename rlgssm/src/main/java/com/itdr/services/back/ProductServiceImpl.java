@@ -1,8 +1,8 @@
-package com.itdr.services;
+package com.itdr.services.back;
 
 import com.itdr.common.ResCode;
 import com.itdr.mappers.ProductMapper;
-import com.itdr.pojo.ProductWithBLOBs;
+import com.itdr.pojo.Product;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +29,7 @@ public class ProductServiceImpl implements ProductService {
             resCode = ResCode.error(1,"参数为空！");
             return resCode;
         }
-        ProductWithBLOBs product = productMapper.selectByPrimaryKey(id);
+        Product product = productMapper.selectByPrimaryKey(id);
         if (product == null){
             resCode = ResCode.error(1,"无此商品！");
             return resCode;
@@ -45,7 +45,7 @@ public class ProductServiceImpl implements ProductService {
             resCode = ResCode.error(1,"参数为空！");
             return resCode;
         }
-        List<ProductWithBLOBs> products = productMapper.selectByName(name);
+        List<Product> products = productMapper.selectByName(name);
         if (products == null){
             resCode = ResCode.error(1,"查询异常！");
             return resCode;
@@ -65,7 +65,7 @@ public class ProductServiceImpl implements ProductService {
             resCode = ResCode.error(1,"参数为空！");
             return resCode;
         }
-        ProductWithBLOBs product = productMapper.selectByIdAndName(id, name);
+        Product product = productMapper.selectByIdAndName(id, name);
         if (product == null){
             resCode = ResCode.error(1,"无此商品！");
             return resCode;
@@ -85,7 +85,7 @@ public class ProductServiceImpl implements ProductService {
         if (pageSize != null && pageSize != 10 ){
             pSize = pageSize;
         }
-        List<ProductWithBLOBs> list = productMapper.selectByNumAndSize(pNum, pSize);
+        List<Product> list = productMapper.selectByNumAndSize(pNum, pSize);
         if (list == null){
             resCode = ResCode.error(1,"查询失败了");
             return resCode;
@@ -124,7 +124,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResCode search(Integer productId, String productName) {
         ResCode resCode = null;
-        List<ProductWithBLOBs> search = productMapper.search(productId, productName);
+        List<Product> search = productMapper.search(productId, productName);
         if (search == null){
             resCode = ResCode.error(1,"查询异常！");
             return resCode;
@@ -140,7 +140,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResCode set_sale_status(Integer productId) {
         ResCode resCode = null;
-        ProductWithBLOBs product = productMapper.selectByPrimaryKey(productId);
+        Product product = productMapper.selectByPrimaryKey(productId);
         if (product == null){
             resCode = ResCode.error(1,"商品不存在！");
             return resCode;
@@ -160,7 +160,7 @@ public class ProductServiceImpl implements ProductService {
             resCode = ResCode.error(1,"更新失败！");
             return resCode;
         }
-        resCode = ResCode.success(0,"更新成功！ row="+row);
+        resCode = ResCode.success(0,"更新成功！ row=");
         return resCode;
     }
 

@@ -1,5 +1,7 @@
 package com.itdr.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 public class User {
@@ -19,8 +21,11 @@ public class User {
 
     private Integer role;
 
-    private Date createTime;
+    private Integer status;
 
+    @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+    @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
     public Integer getId() {
@@ -85,6 +90,14 @@ public class User {
 
     public void setRole(Integer role) {
         this.role = role;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
     public Date getCreateTime() {

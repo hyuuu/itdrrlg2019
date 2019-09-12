@@ -1,7 +1,7 @@
-package com.itdr.controllers;
+package com.itdr.controllers.back;
 
 import com.itdr.common.ResCode;
-import com.itdr.services.ProductService;
+import com.itdr.services.back.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
