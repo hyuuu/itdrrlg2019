@@ -10,9 +10,10 @@ import com.itdr.common.ResCode;
  * @author: Heyuu
  */
 public interface OrderService {
+    // 订单List
     ResCode list(Integer pageNum, Integer pageSize);
-
+    // 按订单号查询
     ResCode search(Long orderNo);
-
+    // 订单发货
     ResCode sendGoods(Long orderNo);
 }

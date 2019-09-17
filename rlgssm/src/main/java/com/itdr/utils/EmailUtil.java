@@ -15,7 +15,7 @@ import java.util.Properties;
  * @author: Heyuu
  */
 public class EmailUtil {
-    public static boolean sendEmail(String email,String checkUsername, String vCode){
+    public static boolean sendEmail(String email,String vCode){
         String from = "hy_0003@163.com";
         String to = email;
         final String username = "hy_0003@163.com";
@@ -43,8 +43,7 @@ public class EmailUtil {
             // 设置标题
             message.setSubject("激活用户");
             // 设置内容
-            String content = "<a href=\"http://localhost:8080/user/activate.do?" +
-                    "checkUsername="+checkUsername+"&vcode="+vCode+"\">点此激活</a>";
+            String content = "<a href=\"http://localhost:8080/user/activate.do/"+vCode+"\">点此激活</a>";
             message.setContent(content,"text/html;charset=utf-8");
 
             // 设置附件

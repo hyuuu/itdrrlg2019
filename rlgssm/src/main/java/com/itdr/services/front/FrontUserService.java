@@ -18,7 +18,7 @@ public interface FrontUserService {
     /* 用户注册 */
     ResCode register(User user);
     /* 用户激活 */
-    ResCode activateUser(String checkUsername, String vcode);
+    ResCode activateUser(String vcode);
     /* 登录状态更新个人信息 */
     ResCode updateInformation(User user);
     /* 忘记密码 */

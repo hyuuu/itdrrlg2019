@@ -23,13 +23,13 @@ public class ResCode<T> implements Serializable {
     // 数据
     private T data;
     // 通用成功状态码
-    private static final Integer SUCCESSCODE = 0;
+    private static final Integer SUCCESS_CODE = Const.SUCCESS_CODE;
     // 通用失败状态码
-    private static final Integer ERRORCODE = 1;
+    private static final Integer ERROR_CODE = Const.ERROR_CODE;
 
     // error
     private ResCode(String msg){
-        this.status = ERRORCODE;
+        this.status = ERROR_CODE;
         this.msg = msg;
     }
     private ResCode(Integer status, String msg){
@@ -38,7 +38,7 @@ public class ResCode<T> implements Serializable {
     }
     // success
     private ResCode(T data){
-        this.status = SUCCESSCODE;
+        this.status = SUCCESS_CODE;
         this.data =  data;
     }
     private ResCode(Integer status, T data){
@@ -68,9 +68,12 @@ public class ResCode<T> implements Serializable {
         return new ResCode(status, data, msg);
     }
 
-    //判断是否登录成功
+    /**
+     * 判断ResCode的状态码是否是成功状态码
+     * @return boolean
+     */
     @JsonIgnore
     public boolean isSucess(){
-        return this.status == SUCCESSCODE;
+        return this.status == SUCCESS_CODE;
     }
 }

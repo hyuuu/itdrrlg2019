@@ -1,5 +1,6 @@
 package com.itdr.services.back;
 
+import com.itdr.common.Const;
 import com.itdr.common.ResCode;
 import com.itdr.mappers.OrderMapper;
 import com.itdr.pojo.Order;
@@ -22,64 +23,84 @@ public class OrderServiceImpl implements OrderService {
     @Resource
     private OrderMapper orderMapper;
 
+    /**
+     * 订单List
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     @Override
     public ResCode list(Integer pageNum, Integer pageSize) {
-        ResCode resCode = null;
-        Integer pNum = 0;
-        Integer pSize = 10;
-        if (pageNum != null && pageNum != 0){
+        Integer pNum = Const.OrderEnum.PAGE_NUM.getCode();
+        Integer pSize = Const.OrderEnum.PAGE_SIZE.getCode();
+        if (pageNum != null && pageNum != Const.OrderEnum.PAGE_NUM.getCode()){
             pNum = pageNum;
         }
-        if (pageSize != null && pageSize != 10 ){
+        if (pageSize != null && pageSize != Const.OrderEnum.PAGE_SIZE.getCode()){
             pSize = pageSize;
         }
         List<Order> list = orderMapper.selectByNumAndSize(pNum, pSize);
         if (list == null){
-            resCode = ResCode.error(1,"查询失败了");
-            return resCode;
+            return ResCode.error(Const.OrderEnum.SELECT_ERROR.getMsg());
         }
-        resCode = ResCode.success(0,list);
-        return resCode;
+        return ResCode.success(list);
     }
 
+    /**
+     * 按订单号查询
+     * @param orderNo
+     * @return
+     */
     @Override
     public ResCode search(Long orderNo) {
-        ResCode resCode = null;
         if (orderNo == null){
-            resCode = ResCode.error(1,"参数为空！");
-            return resCode;
+           return ResCode.error(Const.OrderEnum.ORDERNO_NULL.getMsg());
         }
         Order order = orderMapper.selectByOrderNo(orderNo);
         if (order == null){
-            resCode = ResCode.error(1,"无此订单号！");
-            return resCode;
+            return ResCode.error(Const.OrderEnum.ORDER_NOT_EXIST.getMsg());
         }
-        resCode = ResCode.success(0,order);
-        return resCode;
+        return ResCode.success(order);
     }
 
+    /**
+     * 订单发货
+     * @param orderNo
+     * @return
+     */
     @Override
     public ResCode sendGoods(Long orderNo) {
         ResCode resCode = null;
         if (orderNo == null){
-            resCode = ResCode.error(1,"参数为空！");
-            return resCode;
+            return ResCode.error(Const.OrderEnum.ORDERNO_NULL.getMsg());
         }
         Order order = orderMapper.selectByOrderNo(orderNo);
         if (order == null){
-            resCode = ResCode.error(1,"无此订单号！");
-            return resCode;
+            return ResCode.error(Const.OrderEnum.ORDER_NOT_EXIST.getMsg());
         }
-        if (order.getStatus() == 40){
-            resCode = ResCode.error(1,"订单已发货！");
-            return resCode;
+        if (order.getStatus() == Const.OrderEnum.STATUS_0.getCode()){
+            return ResCode.error(Const.OrderEnum.ORDER_STATUS_0.getMsg());
         }
-        int i = orderMapper.sendGoods(orderNo);
+        if (order.getStatus() == Const.OrderEnum.STATUS_10.getCode()){
+            return ResCode.error(Const.OrderEnum.ORDER_STATUS_10.getMsg());
+        }
+        if (order.getStatus() == Const.OrderEnum.STATUS_40.getCode()){
+            return ResCode.error(Const.OrderEnum.ORDER_STATUS_40.getMsg());
+        }
+        if (order.getStatus() == Const.OrderEnum.STATUS_50.getCode()){
+            return ResCode.error(Const.OrderEnum.ORDER_STATUS_50.getMsg());
+        }
+        if (order.getStatus() == Const.OrderEnum.STATUS_60.getCode()){
+            return ResCode.error(Const.OrderEnum.ORDER_STATUS_60.getMsg());
+        }
+        // 检查订单是否处在已付款状态
+        if (order.getStatus() != 20){
+            return ResCode.error(Const.OrderEnum.ORDER_STATUS_ERROR.getMsg());
+        }
+        int i = orderMapper.updateStatusByOrderNo(orderNo,Const.OrderEnum.ORDER_STATUS_40.getCode());
         if ( i == 0){
-            resCode = ResCode.error(1,"更新失败！");
-            return resCode;
+            return ResCode.error(Const.OrderEnum.UPDATE_ERROR.getMsg());
         }
-        resCode = ResCode.success(0,"更新成功！");
-        return resCode;
+        return ResCode.success(Const.SUCCESS_CODE,null,Const.OrderEnum.UPDATE_SUCCESS.getMsg());
     }
 }

@@ -197,11 +197,14 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
+  <!--分页查询订单表-->
   <select id="selectByNumAndSize" parameterType="map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
-    from neuedu_order limit #{param1},#{param2}
+    from neuedu_order limit #{num},#{size}
   </select>
+
+  <!--根据订单号查询一个订单信息-->
   <select id="selectByOrderNo" parameterType="long" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -209,7 +212,8 @@
     where order_no = #{orderNo}
   </select>
 
-  <update id="sendGoods" parameterType="long">
-    update neuedu_order set status = 40 where order_no = #{orderNo}
+  <!--根据订单号修改订单状态-->
+  <update id="updateStatusByOrderNo" parameterType="map">
+    update neuedu_order set status = #{status} where order_no = #{orderNo}
   </update>
 </mapper>

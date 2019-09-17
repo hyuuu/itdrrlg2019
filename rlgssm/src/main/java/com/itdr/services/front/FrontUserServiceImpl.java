@@ -1,5 +1,6 @@
 package com.itdr.services.front;
 
+import com.itdr.common.Const;
 import com.itdr.common.ResCode;
 import com.itdr.common.TokenCache;
 import com.itdr.mappers.UserMapper;
@@ -30,25 +31,20 @@ public class FrontUserServiceImpl implements FrontUserService {
     @Override
     public ResCode login(String username, String password) {
         if (username == null || username.equals("")){
-            return ResCode.error("用户名不能为空！");
+            return ResCode.error(Const.UserEnum.USERNAME_NULL.getMsg());
         }
         if (password == null || password.equals("")){
-            return ResCode.error("密码不能为空！");
+            return ResCode.error(Const.UserEnum.PASSWORD_NULL.getMsg());
         }
         // 检查 用户名 或 邮箱 是否存在
-        User u = userMapper.selectByUsernameOrEmail(username, "username");
-        if (u == null){
-            return ResCode.error("用户不存在！");
-        }
-        if (u.getStatus() == 3){
-            return ResCode.error("用户未激活！");
+        User user = userMapper.selectByUsernameOrEmail(username, "username");
+        if (user == null){
+            return ResCode.error(Const.UserEnum.USER_NOT_EXIST.getMsg());
         }
         // 登录密码加密
         String md5Password = MD5Util.getMD5Code(password);
-        // 根据用户名和密码查找一个用户
-        User user = userMapper.selectByUsernameAndPassword(username, md5Password);
-        if (user == null){
-            return ResCode.error("密码错误！");
+        if (!user.getPassword().equals(md5Password)){
+            return ResCode.error(Const.UserEnum.PASSWORD_ERROR.getMsg());
         }
         // user存入session，loginResponse作为返回对象
         User loginResponse = new User();
@@ -58,10 +54,8 @@ public class FrontUserServiceImpl implements FrontUserService {
         loginResponse.setPhone(user.getPhone());
         loginResponse.setCreateTime(user.getCreateTime());
         loginResponse.setUpdateTime(user.getUpdateTime());
-        Map<String,User> userMap = new HashMap<String,User>();
-        userMap.put("user",user);
-        userMap.put("loginResponse",loginResponse);
-        return ResCode.success(userMap);
+        TokenCache.set(Const.TOKEN_PREFIX + Const.USER_LOGIN_SESSION, user);
+        return ResCode.success(loginResponse);
     }
 
     /* 检查用户名或邮箱是否存在 */
@@ -69,169 +63,159 @@ public class FrontUserServiceImpl implements FrontUserService {
     public ResCode checkUserByUsernameOrEmail(String str, String type) {
         // 参数非空判断
         if (str == null || str.equals("")){
-            return ResCode.error("参数不能为空！");
+            return ResCode.error(Const.UserEnum.PARAMETER_NULL.getMsg());
         }
         if (type == null || type.equals("")){
-            return ResCode.error("参数类型不能为空！");
+            return ResCode.error(Const.UserEnum.PARAMETER_TYPE_NULL.getMsg());
         }
         // type转成小写
         try {
             type = type.toLowerCase();
         }catch (Exception e){
-            return ResCode.error("参数类型错误！");
+            return ResCode.error(Const.UserEnum.PARAMETER_TYPE_ERROR.getMsg());
         }
         // 限制type的值：username,email
         if (!type.equals("username") && !type.equals("email")){
-            return ResCode.error("参数类型错误！");
+            return ResCode.error(Const.UserEnum.PARAMETER_TYPE_ERROR.getMsg());
         }
         // 检查 用户名 或 邮箱 是否存在
         User user = userMapper.selectByUsernameOrEmail(str, type);
         // 用户名已存在
         if (user != null && type.equals("username")){
-            return ResCode.error("该用户名已存在！");
+            return ResCode.error(Const.UserEnum.USER_EXIST.getMsg());
         }
         // 邮箱已存在
         if (user != null && type.equals("email")){
-            return ResCode.error("该邮箱已存在！");
+            return ResCode.error(Const.UserEnum.EMAIL_EXIST.getMsg());
         }
         // 不存在
-        return ResCode.success(0,null,"校验成功！");
+        return ResCode.success(Const.SUCCESS_CODE,null,Const.UserEnum.CHECK_SUCCESS.getMsg());
     }
 
     /* 用户注册 */
     @Override
     public ResCode register(User user) {
         if (user.getUsername() == null || user.getUsername().equals("")){
-            return ResCode.error("用户名不能为空！");
+            return ResCode.error(Const.UserEnum.USERNAME_NULL.getMsg());
         }
         if (user.getPassword() == null || user.getPassword().equals("")){
-            return ResCode.error("密码不能为空！");
+            return ResCode.error(Const.UserEnum.PASSWORD_NULL.getMsg());
         }
         if (user.getEmail() == null || user.getEmail().equals("")){
-            return ResCode.error("邮箱不能为空！");
+            return ResCode.error(Const.UserEnum.EMAIL_NULL.getMsg());
         }
         // 验证邮箱格式
         if (!Tools.isEmail(user.getEmail())){
-            return ResCode.error("邮箱格式不正确！");
+            return ResCode.error(Const.UserEnum.EMAIL_TYPE_ERROR.getMsg());
         }
         if (user.getPhone() == null || user.getPhone().equals("")){
-            return ResCode.error("手机号不能为空！");
+            return ResCode.error(Const.UserEnum.PHONE_NULL.getMsg());
         }
         // 验证手机号码格式
         if (!Tools.isMobilePhone(user.getPhone())){
-            return ResCode.error("手机号码格式不正确！");
+            return ResCode.error(Const.UserEnum.PHONE_TYPE_ERROR.getMsg());
         }
         if (user.getQuestion() == null || user.getQuestion().equals("")){
-            return ResCode.error("密保问题不能为空！");
+            return ResCode.error(Const.UserEnum.QUESTION_NULL.getMsg());
         }
         if (user.getAnswer() == null || user.getAnswer().equals("")){
-            return ResCode.error("密保答案不能为空！");
+            return ResCode.error(Const.UserEnum.ANSWER_NULL.getMsg());
         }
         // 检查该用户名和邮箱是否已被注册
         User u1 = userMapper.selectByUsernameOrEmail(user.getUsername(), "username");
         if (u1 != null){
-            return ResCode.error("该用户名已存在！");
+            return ResCode.error(Const.UserEnum.USER_EXIST.getMsg());
         }
         User u2 = userMapper.selectByUsernameOrEmail(user.getEmail(), "email");
         if (u2 != null){
-            return ResCode.error("该邮箱已被注册！");
+            return ResCode.error(Const.UserEnum.EMAIL_EXIST.getMsg());
         }
-        // MD5加密
-        user.setPassword(MD5Util.getMD5Code(user.getPassword()));
-        // 增加一个用户
-        int insert = userMapper.insert(user);
-        if (insert <= 0){
-            return ResCode.error("注册失败！");
-        }
-        // 生成验证码
-        String vCode = Tools.getVCode();
+        // 生成验证码：六位随机验证码-UUID
+        String vCode = Tools.getVCode()+"-"+UUID.randomUUID().toString();
         // 发邮件
-        boolean email = EmailUtil.sendEmail(user.getEmail(), user.getUsername(), vCode);
+        boolean email = EmailUtil.sendEmail(user.getEmail(),vCode);
         if (!email){
-            return ResCode.error("邮件发送失败！");
+            return ResCode.error(Const.UserEnum.EMAIL_SEND_ERROR.getMsg());
         }
-        // 将username和vCode写入TokenCache缓存
-        TokenCache.set("token_"+user.getUsername(),vCode);
-        return ResCode.success(0,null,"用户注册成功，请在30分钟内激活！");
+        // 以VCode为key，将user存入缓存
+        TokenCache.set(Const.TOKEN_PREFIX+vCode,user);
+        return ResCode.success(Const.SUCCESS_CODE,null,"请在"+Const.TOKEN_TIMEOUT+"分钟内前往邮箱"+user.getEmail()+"激活！");
     }
 
     /* 用户激活 */
     @Override
-    public ResCode activateUser(String username, String vCode) {
-        if (username == null || username.equals("")){
-            return ResCode.error("用户名为空，激活失败！");
-        }
+    public ResCode activateUser(String vCode) {
         if (vCode == null || vCode.equals("")){
-            return ResCode.error("验证码为空，激活失败！");
+            return ResCode.error(Const.UserEnum.VCODE_NULL.getMsg());
         }
-        String code = (String) TokenCache.get("token_" + username);
-        if (code == null){
-            return ResCode.error("激活超时，验证码失效！");
-        }
-        if (!code.equals(vCode)){
-            return ResCode.error("非法验证码！");
-        }
-        User user = userMapper.selectByUsernameOrEmail(username, "username");
+        // 已vCode为键，从缓存中获取user
+        User user = (User) TokenCache.get("token_" + vCode);
         if (user == null){
-            return ResCode.error("用户不存在，激活失败！");
+            return ResCode.error(Const.UserEnum.VCODE_TIMEOUT.getMsg());
         }
-        // 拦截通过激活用户来启用被禁用的用户的非法操作
-        if (user.getStatus() == 1){
-            return ResCode.error("非法操作！");
+        // 清除缓存中的 vCode
+        TokenCache.clearCache("token_" + vCode);
+        // 检查该用户名和邮箱是否已被注册
+        User u1 = userMapper.selectByUsernameOrEmail(user.getUsername(), "username");
+        if (u1 != null){
+            return ResCode.error(Const.UserEnum.USER_EXIST.getMsg());
         }
-        if (user.getStatus() == 0){
-            return ResCode.error("用户已激活！");
+        User u2 = userMapper.selectByUsernameOrEmail(user.getEmail(), "email");
+        if (u2 != null){
+            return ResCode.error(Const.UserEnum.EMAIL_EXIST.getMsg());
         }
-        Integer row = userMapper.updateStatusByUsername(username,0);
+        // 密码加密
+        user.setPassword(MD5Util.getMD5Code(user.getPassword()));
+        int row = userMapper.insert(user);
         if (row <= 0){
-            return ResCode.error("激活失败！");
+            return ResCode.error(Const.UserEnum.REGISTER_ERROR.getMsg());
         }
-        return ResCode.success(0,null,"激活成功！");
+        return ResCode.success(Const.SUCCESS_CODE,null,Const.UserEnum.REGISTER_SUCCESS.getMsg());
     }
 
     /* 登录状态更新个人信息 */
     @Override
     public ResCode updateInformation(User user) {
         if (user.getEmail() == null || user.getEmail().equals("")){
-            return ResCode.error("邮箱不能为空！");
+            return ResCode.error(Const.UserEnum.EMAIL_NULL.getMsg());
         }
         // 验证邮箱格式
         if (!Tools.isEmail(user.getEmail())){
-            return ResCode.error("邮箱格式不正确！");
+            return ResCode.error(Const.UserEnum.EMAIL_TYPE_ERROR.getMsg());
         }
         if (user.getPhone() == null || user.getPhone().equals("")){
-            return ResCode.error("手机号不能为空！");
+            return ResCode.error(Const.UserEnum.PHONE_NULL.getMsg());
         }
         // 验证手机号码格式
         if (!Tools.isMobilePhone(user.getPhone())){
-            return ResCode.error("手机号码格式不正确！");
+            return ResCode.error(Const.UserEnum.PHONE_TYPE_ERROR.getMsg());
         }
         if (user.getQuestion() == null || user.getQuestion().equals("")){
-            return ResCode.error("密保问题不能为空！");
+            return ResCode.error(Const.UserEnum.QUESTION_NULL.getMsg());
         }
         if (user.getAnswer() == null || user.getAnswer().equals("")){
-            return ResCode.error("密保答案不能为空！");
+            return ResCode.error(Const.UserEnum.ANSWER_NULL.getMsg());
         }
         int i = userMapper.updateByPrimaryKeySelective(user);
         if (i <= 0){
-            return ResCode.error("更新失败，出现异常！");
+            return ResCode.error(Const.UserEnum.UPDATE_ERROR.getMsg());
         }
-        return ResCode.success(0,null,"更新个人信息成功");
+        return ResCode.success(Const.SUCCESS_CODE,null,Const.UserEnum.UPDATE_SUCCESS.getMsg());
     }
 
     /* 忘记密码 */
     @Override
     public ResCode forgetGetQuestion(String username) {
         if (username == null || username.equals("")){
-            return ResCode.error("参数不能为空！");
+            return ResCode.error(Const.UserEnum.USERNAME_NULL.getMsg());
         }
         // 检查该用户是否存在
         User user = userMapper.selectByUsernameOrEmail(username, "username");
         if (user == null){
-            return ResCode.error("该用户不存在！");
+            return ResCode.error(Const.UserEnum.USER_NOT_EXIST.getMsg());
         }
         if (user.getQuestion() == null || user.equals("")){
-            return ResCode.error("该用户未设置找回密码问题！");
+            return ResCode.error(Const.UserEnum.QUESTION_NULL_2.getMsg());
         }
         return ResCode.success(user.getQuestion());
     }
@@ -240,22 +224,22 @@ public class FrontUserServiceImpl implements FrontUserService {
     @Override
     public ResCode forgetCheckAnswer(String username, String question, String answer) {
         if (username == null || username.equals("")){
-            return ResCode.error("用户名不能为空！");
+            return ResCode.error(Const.UserEnum.USERNAME_NULL.getMsg());
         }
         if (question == null || question.equals("")){
-            return ResCode.error("问题不能为空！");
+            return ResCode.error(Const.UserEnum.QUESTION_NULL.getMsg());
         }
         if (answer == null || answer.equals("")){
-            return ResCode.error("答案不能为空！");
+            return ResCode.error(Const.UserEnum.ANSWER_NULL.getMsg());
         }
         User user = userMapper.selectByUsernameOrEmail(username, "username");
         if (!question.equals(user.getQuestion()) || !answer.equals(user.getAnswer())){
-            return ResCode.error("问题答案错误！");
+            return ResCode.error(Const.UserEnum.ANSWER_ERROR.getMsg());
         }
         // 产生随机令牌token
         String token = UUID.randomUUID().toString();
         // 令牌存入TokenCache缓存
-        TokenCache.set("token_"+username,token);
+        TokenCache.set(Const.TOKEN_PREFIX+username,token);
         return ResCode.success(token);
     }
 
@@ -263,49 +247,51 @@ public class FrontUserServiceImpl implements FrontUserService {
     @Override
     public ResCode forgetResetPassword(String username, String passwordNew, String forgetToken) {
         if (username == null || username.equals("")){
-            return ResCode.error("用户名不能为空！");
+            return ResCode.error(Const.UserEnum.USERNAME_NULL.getMsg());
         }
         if (passwordNew == null || passwordNew.equals("")){
-            return ResCode.error("新密码不能为空！");
+            return ResCode.error(Const.UserEnum.PASSWORD_NULL_NEW.getMsg());
         }
         if (forgetToken == null || forgetToken.equals("")){
-            return ResCode.error("非法令牌1！");
+            return ResCode.error(Const.UserEnum.TOKEN_ERROR.getMsg());
         }
-        String token = (String) TokenCache.get("token_" + username);
+        String token = (String) TokenCache.get(Const.TOKEN_PREFIX + username);
         if (token == null || token.equals("")){
-            return ResCode.error("令牌已失效！");
+            return ResCode.error(Const.UserEnum.TOKEN_TIMEOUT.getMsg());
         }
         if (!token.equals(forgetToken)){
-            return ResCode.error("非法令牌2！");
+            return ResCode.error(Const.UserEnum.TOKEN_ERROR.getMsg());
         }
+        // 清除令牌，只能使用一次
+        TokenCache.clearCache(Const.TOKEN_PREFIX + username);
         //密码加密
         String md5Password = MD5Util.getMD5Code(passwordNew);
         Integer row = userMapper.updateByUsernameAndPassword(username, md5Password);
         if (row <= 0){
-            return ResCode.error("修改密码操作失败");
+            return ResCode.error(Const.UserEnum.UPDATE_ERROR.getMsg());
         }
-        return ResCode.success(0,null,"修改密码成功");
+        return ResCode.success(Const.SUCCESS_CODE,null,Const.UserEnum.UPDATE_SUCCESS.getMsg());
     }
 
     /* 登录中状态重置密码 */
     @Override
     public ResCode resetPassword(User user, String passwordOld, String passwordNew) {
         if (passwordOld == null || passwordOld.equals("")){
-            return ResCode.error("原密码不能为空！");
+            return ResCode.error(Const.UserEnum.PASSWORD_NULL_OLD.getMsg());
         }
         if (passwordNew == null || passwordNew.equals("")){
-            return ResCode.error("新密码不能为空！");
+            return ResCode.error(Const.UserEnum.PASSWORD_NULL_NEW.getMsg());
         }
         String pwdOld = MD5Util.getMD5Code(passwordOld);
         if (!pwdOld.equals(user.getPassword())){
-            return ResCode.error("原密码错误！");
+            return ResCode.error(Const.UserEnum.PASSWORD_ERROR_OLD.getMsg());
         }
         String md5Password = MD5Util.getMD5Code(passwordNew);
         Integer row = userMapper.updateByUsernameAndPassword(user.getUsername(),md5Password);
         if (row <= 0){
-            return ResCode.error("更新失败！");
+            return ResCode.error(Const.UserEnum.UPDATE_ERROR.getMsg());
         }
-        return ResCode.success(0,null,"修改密码成功");
+        return ResCode.success(Const.SUCCESS_CODE,null,Const.UserEnum.UPDATE_SUCCESS.getMsg());
     }
 
 

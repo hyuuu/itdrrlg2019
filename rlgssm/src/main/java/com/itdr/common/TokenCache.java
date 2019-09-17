@@ -11,17 +11,23 @@ import java.util.concurrent.TimeUnit;
  * 基于Guava Cache缓存类
  */
 public class TokenCache {
+    // 初始化缓存项
+    private static final int INITIALCAPACITY = Const.TOKEN_INIT_SIZE;
+    // 最大缓存项
+    private static final int MAXIMUMSIZE = Const.TOKEN_MAX_SIZE;
+    // 定时回收
+    private static final int EXPIREAFTERACCESS = Const.TOKEN_TIMEOUT;
 
     //LRU算法（超过最大值使用此算法）
     private static LoadingCache<String, Object> localCache = CacheBuilder.newBuilder()
-            .initialCapacity(1000)//初始化缓存项为1000
-            .maximumSize(10000)//设置缓存项最大值不超过10000
-            .expireAfterAccess(30, TimeUnit.MINUTES)//定时回收
+            .initialCapacity(INITIALCAPACITY)//初始化缓存项为1000
+            .maximumSize(MAXIMUMSIZE)//设置缓存项最大值不超过10000
+            .expireAfterAccess(EXPIREAFTERACCESS, TimeUnit.MINUTES)//定时回收
             .build(new CacheLoader<String, Object>() {
                 //当缓存中没有对应的值的时候执行load方法
                 @Override
                 public Object load(String s) throws Exception {
-                    return null;
+                    return "null";
                 }
             });
 
@@ -32,17 +38,20 @@ public class TokenCache {
     public static Object get(String key) {
         try {
             Object obj = localCache.get(key);
-            if (obj == null) {
+            if (obj == null || obj.equals("null")) {
                 return null;
             }
             return obj;
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
-    //清缓存
+    /**
+     * 清缓存
+     * @param key
+     */
     public static void clearCache(String key){
         localCache.invalidate(key);
     }

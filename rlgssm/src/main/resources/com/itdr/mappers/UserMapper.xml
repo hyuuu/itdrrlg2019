@@ -31,11 +31,10 @@
   <!--插入一个用户-->
   <insert id="insert" parameterType="com.itdr.pojo.User">
     insert into neuedu_user (id, username, password,
-      email, phone, question,
-      answer, role, status, create_time, update_time)
+      email, phone, question, answer, role, status, create_time, update_time)
     values (null, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
       #{email,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR},
-      #{question,jdbcType=VARCHAR}, #{answer,jdbcType=VARCHAR}, 1, 2, now(), now())
+      #{question,jdbcType=VARCHAR}, #{answer,jdbcType=VARCHAR}, 1, 0, now(), now())
   </insert>
 
   <insert id="insertSelective" parameterType="com.itdr.pojo.User">
@@ -155,10 +154,11 @@
     where username = #{username} and password = #{password}
   </select>
 
-  <select id="selectAll" resultMap="BaseResultMap">
+  <!--分页查询用户列表-->
+  <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List"/>
-    from neuedu_user
+    from neuedu_user limit #{num},#{size}
   </select>
 
   <!--根据用户名或邮箱查找一个用户-->
@@ -186,5 +186,9 @@
   <!--根据用户名更新用户状态-->
   <update id="updateStatusByUsername" parameterType="map">
     update neuedu_user set status = #{status} where username = #{username}
+  </update>
+  <!--根据ID更新用户状态-->
+  <update id="updateStatusById">
+    update neuedu_user set status = #{status} where id = #{id}
   </update>
 </mapper>

@@ -1,11 +1,13 @@
 package com.itdr.controllers.front;
 
+import com.itdr.common.Const;
 import com.itdr.common.ResCode;
 import com.itdr.common.TokenCache;
 import com.itdr.pojo.User;
 import com.itdr.services.front.FrontUserService;
 import com.itdr.utils.MD5Util;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -35,9 +37,9 @@ public class FrontUserController {
         if (!resCode.isSucess()){
             return resCode;
         }
-        Map data = (Map) resCode.getData();
-        session.setAttribute("user",data.get("user"));
-        resCode.setData(data.get("loginResponse"));
+        User user = (User) TokenCache.get(Const.TOKEN_PREFIX + Const.USER_LOGIN_SESSION);
+        TokenCache.clearCache(Const.TOKEN_PREFIX + Const.USER_LOGIN_SESSION);
+        session.setAttribute(Const.USER_LOGIN_SESSION,user);
         return resCode;
     }
 
@@ -48,9 +50,9 @@ public class FrontUserController {
     }
 
     /* 用户激活 */
-    @RequestMapping("activate.do")
-    public ResCode activateUser(String checkUsername, String vcode){
-        return frontUserService.activateUser(checkUsername,vcode);
+    @RequestMapping("activate.do/{vcode}")
+    public ResCode activateUser(@PathVariable String vcode){
+        return frontUserService.activateUser(vcode);
     }
 
     /* 检查用户名或邮箱是否存在 */
@@ -62,9 +64,9 @@ public class FrontUserController {
     /* 获取当前登录用户信息 */
     @RequestMapping("get_user_info.do")
     public ResCode getUserInfo(HttpSession session){
-        User user = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute(Const.USER_LOGIN_SESSION);
         if (user == null){
-            return ResCode.error("用户未登录，无法获取当前用户信息！");
+            return ResCode.error(Const.UserEnum.USER_NOT_LOGIN.getMsg());
         }
         User resUser = new User();
         resUser.setId(user.getId());
@@ -79,9 +81,9 @@ public class FrontUserController {
     /* 获取当前登录用户的详细信息 */
     @RequestMapping("get_inforamtion.do")
     public ResCode getInforamtion(HttpSession session){
-        User user = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute(Const.USER_LOGIN_SESSION);
         if (user == null){
-            return ResCode.error(10,"用户未登录，无法获取当前用户信息！");
+            return ResCode.error(Const.UserEnum.USER_NOT_LOGIN.getMsg());
         }
         return ResCode.success(user);
     }
@@ -89,20 +91,20 @@ public class FrontUserController {
     /* 退出登录 */
     @RequestMapping("logout.do")
     public ResCode logout(HttpSession session){
-        User user = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute(Const.USER_LOGIN_SESSION);
         if (user == null){
-            return ResCode.error("未登录！");
+            return ResCode.error(Const.UserEnum.USER_NOT_LOGIN.getMsg());
         }
-        session.removeAttribute("user");
-        return ResCode.success(0,null,"退出成功");
+        session.removeAttribute(Const.USER_LOGIN_SESSION);
+        return ResCode.success(Const.SUCCESS_CODE,null,Const.UserEnum.USER_LOGOUT.getMsg());
     }
 
     /* 登录状态更新个人信息 */
     @PostMapping("update_information.do")
     public ResCode updateInformation(User user, HttpSession session){
-        User user1 = (User) session.getAttribute("user");
+        User user1 = (User) session.getAttribute(Const.USER_LOGIN_SESSION);
         if (user1 == null){
-            return ResCode.error("未登录！");
+            return ResCode.error(Const.UserEnum.USER_NOT_LOGIN.getMsg());
         }
         user.setId(user1.getId());
         user.setUsername(user1.getUsername());
@@ -130,14 +132,14 @@ public class FrontUserController {
     /* 登录中状态重置密码 */
     @PostMapping("reset_password.do")
     public ResCode resetPassword(String passwordOld, String passwordNew, HttpSession session){
-        User user = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute(Const.USER_LOGIN_SESSION);
         if (user == null){
-            return ResCode.error("用户未登录，无法获取当前用户信息！");
+            return ResCode.error(Const.UserEnum.USER_NOT_LOGIN.getMsg());
         }
         ResCode resCode = frontUserService.resetPassword(user, passwordOld, passwordNew);
         // 修改密码成功，清除session
         if (resCode.isSucess()){
-            session.removeAttribute("user");
+            session.removeAttribute(Const.USER_LOGIN_SESSION);
         }
         return resCode;
     }

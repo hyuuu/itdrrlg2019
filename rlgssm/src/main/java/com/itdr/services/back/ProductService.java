@@ -1,6 +1,7 @@
 package com.itdr.services.back;
 
 import com.itdr.common.ResCode;
+import com.itdr.pojo.Product;
 
 /**
  * Interface: ProductService
@@ -10,14 +11,14 @@ import com.itdr.common.ResCode;
  * @author: Heyuu
  */
 public interface ProductService {
-    ResCode selectById(Integer id);
-    ResCode selectByName(String name);
-    ResCode selectByIdAndName(Integer id, String name);
-
+    // 产品list
     ResCode list(Integer pageNum, Integer pageSize);
-
+    // 产品搜索
     ResCode search(Integer productId, String productName);
+    // 产品详情
+    ResCode detail(Integer productId);
+    // 产品上下架
+    ResCode setSaleStatus(Integer productId);
 
-
-    ResCode set_sale_status(Integer productId);
+    ResCode save(Product product);
 }

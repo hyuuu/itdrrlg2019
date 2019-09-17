@@ -10,8 +10,10 @@ import com.itdr.common.ResCode;
  * @author: Heyuu
  */
 public interface UserService {
+    // 用户列表
+    ResCode userList(Integer pageNum, Integer pageSize);
+    // 后台管理员登录
     ResCode login(String username, String password);
-    ResCode changePasswordByUsernameAndPassword(String username, String password, String newPassword);
-
-    ResCode userList();
+    // 禁用会员账户
+    ResCode disableUser(Integer id);
 }

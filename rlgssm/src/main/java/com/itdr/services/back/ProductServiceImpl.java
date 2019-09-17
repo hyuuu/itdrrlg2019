@@ -1,5 +1,6 @@
 package com.itdr.services.back;
 
+import com.itdr.common.Const;
 import com.itdr.common.ResCode;
 import com.itdr.mappers.ProductMapper;
 import com.itdr.pojo.Product;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -22,147 +24,151 @@ public class ProductServiceImpl implements ProductService {
     @Resource
     private ProductMapper productMapper;
 
-    @Override
-    public ResCode selectById(Integer id) {
-        ResCode resCode = null;
-        if (id == null){
-            resCode = ResCode.error(1,"参数为空！");
-            return resCode;
-        }
-        Product product = productMapper.selectByPrimaryKey(id);
-        if (product == null){
-            resCode = ResCode.error(1,"无此商品！");
-            return resCode;
-        }
-        resCode = ResCode.success(0,product);
-        return resCode;
-    }
-
-    @Override
-    public ResCode selectByName(String name) {
-        ResCode resCode = null;
-        if (name == null || name.equals("")){
-            resCode = ResCode.error(1,"参数为空！");
-            return resCode;
-        }
-        List<Product> products = productMapper.selectByName(name);
-        if (products == null){
-            resCode = ResCode.error(1,"查询异常！");
-            return resCode;
-        }
-        if (products.size() == 0){
-            resCode = ResCode.error(1,"无此商品！");
-            return resCode;
-        }
-        resCode = ResCode.success(0,products);
-        return resCode;
-    }
-
-    @Override
-    public ResCode selectByIdAndName(Integer id, String name) {
-        ResCode resCode = null;
-        if (id == null || name == null || name.equals("")){
-            resCode = ResCode.error(1,"参数为空！");
-            return resCode;
-        }
-        Product product = productMapper.selectByIdAndName(id, name);
-        if (product == null){
-            resCode = ResCode.error(1,"无此商品！");
-            return resCode;
-        }
-        resCode = ResCode.success(0,product);
-        return resCode;
-    }
-
+    /**
+     * 产品list
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     @Override
     public ResCode list(Integer pageNum, Integer pageSize) {
-        ResCode resCode = null;
-        Integer pNum = 0;
-        Integer pSize = 10;
-        if (pageNum != null && pageNum != 0){
+        Integer pNum = Const.ProductEnum.PAGE_NUM.getCode();
+        Integer pSize = Const.ProductEnum.PAGE_SIZE.getCode();
+        if (pageNum != null && pageNum != Const.ProductEnum.PAGE_NUM.getCode()){
             pNum = pageNum;
         }
-        if (pageSize != null && pageSize != 10 ){
+        if (pageSize != null && pageSize != Const.ProductEnum.PAGE_SIZE.getCode()){
             pSize = pageSize;
         }
         List<Product> list = productMapper.selectByNumAndSize(pNum, pSize);
         if (list == null){
-            resCode = ResCode.error(1,"查询失败了");
-            return resCode;
+            return ResCode.error(Const.ProductEnum.SELECT_ERROR.getMsg());
         }
-        resCode = ResCode.success(0,list);
-        return resCode;
+        return ResCode.success(list);
     }
 
-    /* 以前写搜索的写法
+    /**
+     * 产品搜索
+     * @param productId
+     * @param productName
+     * @return
+     */
     @Override
     public ResCode search(Integer productId, String productName) {
-        ResCode resCode = null;
-        // 只有ID
-        if (productId != null && (productName == null || productName.equals(""))){
-            resCode = selectById(productId);
-            return resCode;
+        // 这个方法的数据层使用动态SQL查询，不用进行非空判断
+        if (productId != null && productId < 0){
+            return ResCode.error(Const.ProductEnum.ID_LESS_ZERO.getMsg());
         }
-        // 只有name
-        if (productId == null && productName != null && !productName.equals("")){
-            resCode = selectByName(productName);
-            System.out.println("只有name");
-            return resCode;
-        }
-        // 两者都有
-        if (productId != null && productName != null && !productName.equals("")){
-            resCode = selectByIdAndName(productId,productName);
-            return resCode;
-        }
-        // 两者都没有
-        resCode = list(0,10);
-        return resCode;
-    }
-    */
-
-    // 现在写搜索的写法：动态SQL
-    @Override
-    public ResCode search(Integer productId, String productName) {
-        ResCode resCode = null;
         List<Product> search = productMapper.search(productId, productName);
         if (search == null){
-            resCode = ResCode.error(1,"查询异常！");
-            return resCode;
+            return ResCode.error(Const.ProductEnum.SELECT_ERROR.getMsg());
         }
-        if (search.size() == 0){
-            resCode = ResCode.error(1,"无此商品！");
-            return resCode;
-        }
-        resCode = ResCode.success(0,search);
-        return resCode;
+        return ResCode.success(search);
     }
 
+    /**
+     * 产品详情
+     * @param productId
+     * @return
+     */
     @Override
-    public ResCode set_sale_status(Integer productId) {
-        ResCode resCode = null;
+    public ResCode detail(Integer productId) {
+        if (productId == null){
+            return ResCode.error(Const.ProductEnum.ID_NULL.getMsg());
+        }
+        if (productId < 0){
+            return ResCode.error(Const.ProductEnum.ID_LESS_ZERO.getMsg());
+        }
         Product product = productMapper.selectByPrimaryKey(productId);
         if (product == null){
-            resCode = ResCode.error(1,"商品不存在！");
-            return resCode;
+            return ResCode.error(Const.ProductEnum.PRODUCT_NOT_EXIST.getMsg());
         }
-        Integer row = null;
-        if (product.getStatus() == 0){
-            row = productMapper.updateStatusById(productId, 1);
-        }
-        if (product.getStatus() == 1){
-            row = productMapper.updateStatusById(productId, 0);
-        }
-        if (row == null){
-            resCode = ResCode.error(1,"更新异常！");
-            return resCode;
-        }
-        if (row == 0){
-            resCode = ResCode.error(1,"更新失败！");
-            return resCode;
-        }
-        resCode = ResCode.success(0,"更新成功！ row=");
-        return resCode;
+        return ResCode.success(product);
     }
 
+    /**
+     * 产品上下架
+     * @param productId
+     * @return
+     */
+    @Override
+    public ResCode setSaleStatus(Integer productId) {
+        if (productId == null){
+            return ResCode.error(Const.ProductEnum.ID_NULL.getMsg());
+        }
+        if (productId < 0){
+            return ResCode.error(Const.ProductEnum.ID_LESS_ZERO.getMsg());
+        }
+        Product product = productMapper.selectByPrimaryKey(productId);
+        if (product == null){
+            return ResCode.error(Const.ProductEnum.PRODUCT_NOT_EXIST.getMsg());
+        }
+        Integer row = null;
+        if (product.getStatus() == Const.ProductEnum.STATUS_NORMAL.getCode()){
+            row = productMapper.updateStatusById(productId, Const.ProductEnum.STATUS_DISABLE.getCode());
+        }
+        if (product.getStatus() == Const.ProductEnum.STATUS_DISABLE.getCode()){
+            row = productMapper.updateStatusById(productId, Const.ProductEnum.STATUS_NORMAL.getCode());
+        }
+        if (row == null || row == 0){
+            return ResCode.error(Const.ProductEnum.UPDATE_ERROR.getMsg());
+        }
+        return ResCode.success(Const.SUCCESS_CODE,null, Const.ProductEnum.UPDATE_SUCCESS.getMsg());
+    }
 
+    /**
+     * 新增OR更新产品
+     * @param product
+     * @return
+     */
+    @Override
+    public ResCode save(Product product) {
+        if (product.getCategoryId() == null){
+            return ResCode.error(Const.ProductEnum.CATEGORY_ID_NULL.getMsg());
+        }
+        if (product.getCategoryId() < 0){
+            return ResCode.error(Const.ProductEnum.CATEGORY_ID_LESS_ZERO.getMsg());
+        }
+        if (product.getName() == null || "".equals(product.getName())){
+            return ResCode.error(Const.ProductEnum.NAME_NULL.getMsg());
+        }
+        if (product.getSubtitle() == null || "".equals(product.getSubtitle())){
+            return ResCode.error(Const.ProductEnum.SUBTITLE_NULL.getMsg());
+        }
+        if (product.getSubtitle() == null || "".equals(product.getSubtitle())){
+            return ResCode.error(Const.ProductEnum.SUBTITLE_NULL.getMsg());
+        }
+        if (product.getMainImage() == null || "".equals(product.getMainImage())){
+            return ResCode.error(Const.ProductEnum.MAINIMAGE_NULL.getMsg());
+        }
+        if (product.getSubImages() == null || "".equals(product.getSubImages())){
+            return ResCode.error(Const.ProductEnum.SUBIMAGES_NULL.getMsg());
+        }
+        if (product.getDetail() == null || "".equals(product.getDetail())){
+            return ResCode.error(Const.ProductEnum.DETAIL_NULL.getMsg());
+        }
+        if (product.getPrice() == null){
+            return ResCode.error(Const.ProductEnum.PRICE_NULL.getMsg());
+        }
+        if (product.getStock() == null){
+            return ResCode.error(Const.ProductEnum.STOCK_NULL.getMsg());
+        }
+        if (product.getStock() < 0){
+            return ResCode.error(Const.ProductEnum.STOCK_LESS_ZERO.getMsg());
+        }
+        int row = 0;
+        if (product.getId() == null){
+            // 新增一个商品
+            row = productMapper.insert(product);
+        }
+        if (product.getId() != null && product.getId() < 0){
+            return ResCode.error(Const.ProductEnum.ID_LESS_ZERO.getMsg());
+        }
+        // 更新一个商品
+        row = productMapper.updateByPrimaryKeySelective(product);
+        if (row == 0){
+            return ResCode.error(Const.ProductEnum.UPDATE_ERROR.getMsg());
+        }
+        return ResCode.success(Const.SUCCESS_CODE,null,Const.ProductEnum.UPDATE_SUCCESS.getMsg());
+    }
 }
