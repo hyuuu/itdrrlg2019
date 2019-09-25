@@ -26,8 +26,18 @@ public class Const {
     public static final String USER_LOGIN_SESSION = "userLoginSession";
     // 管理员用户登录，将登录信息存储在session中的变量名
     public static final String MANAGE_USER_LOGIN_SESSION = "manageUserLoginSession";
-    // 用户登录，返回给前端用户的变量名
-    public static final String USER_LOGIN_RESPONSE = "userLoginResponse";
+
+    // 图片服务器地址
+    public static final String imageHost = "https://imgchr.com/";
+
+    // 支付宝交易状态说明
+    public static final String TRADE_STATUS_1 = "WAIT_BUYER_PAY";
+    public static final String TRADE_STATUS_2 = "TRADE_CLOSED";
+    public static final String TRADE_STATUS_3 = "TRADE_SUCCESS";
+    public static final String TRADE_STATUS_4 = "TRADE_FINISHED";
+    // 支付宝回调异步通知结果
+    public static final String CALLBACK_SUCCESS = "success";
+    public static final String CALLBACK_FAILED = "failed";
 
     // 用户模块
     public enum UserEnum{
@@ -92,13 +102,31 @@ public class Const {
     public enum ProductEnum{
         PAGE_NUM(0,"默认首页"),
         PAGE_SIZE(10,"默认一页的数量"),
+        PAGE_NUM_LESS_ZERO(Const.ERROR_CODE,"页码不能小于零"),
+        PAGE_SIZE_LESS_ZERO(Const.ERROR_CODE,"每页数据量不能小于零"),
+
+        ID_FIRST(1000,"第一个产品ID"),
+        COUNT_UPDATE_MIN(1,"更新购物车商品的最小数量"),
 
         STATUS_NORMAL(1,"在售"),
         STATUS_DISABLE(2,"下架"),
         STATUS_DELETE(3,"删除"),
 
+        IS_NEW_0(0,"非新品"),
+        IS_NEW_1(1,"新品"),
+        IS_HOT_0(0,"非热门"),
+        IS_HOT_1(1,"热门"),
+        IS_BANNER_0(0,"非轮播"),
+        IS_BANNER_1(1,"轮播"),
+        IS_NEW_ERROR(Const.ERROR_CODE,"商品是否最新的值只能是"+IS_NEW_0.getCode()+"或"+IS_NEW_1.getCode()),
+        IS_HOT_ERROR(Const.ERROR_CODE,"商品是否最热的值只能是"+IS_HOT_0.getCode()+"或"+IS_HOT_1.getCode()),
+        IS_BANNER_ERROR(Const.ERROR_CODE,"商品是否轮播的值只能是"+IS_BANNER_0.getCode()+"或"+IS_BANNER_1.getCode()),
+
         ID_NULL(Const.ERROR_CODE,"产品ID不能为空"),
         ID_LESS_ZERO(Const.ERROR_CODE,"产品ID不能小于零"),
+        ID_LESS_FIRST(Const.ERROR_CODE,"产品ID不能小于"+ID_FIRST.getCode()),
+        COUNT_NULL(Const.ERROR_CODE,"产品数量不能为空"),
+        COUNT_LESS_ONE(Const.ERROR_CODE,"产品数量不能小于1"),
         CATEGORY_ID_NULL(Const.ERROR_CODE,"产品分类ID不能为空"),
         CATEGORY_ID_LESS_ZERO(Const.ERROR_CODE,"产品分类ID不能小于零"),
         NAME_NULL(Const.ERROR_CODE,"产品名称不能为空"),
@@ -109,9 +137,14 @@ public class Const {
         PRICE_NULL(Const.ERROR_CODE,"商品价格不能为空"),
         STOCK_NULL(Const.ERROR_CODE,"商品库存数量不能为空"),
         STOCK_LESS_ZERO(Const.ERROR_CODE,"商品库存数量不能小于零"),
+        STOCK_INSUFFICIENT(Const.ERROR_CODE,"库存不足"),
+        STOCK_UPDATE_ERROR(Const.ERROR_CODE,"库存更新失败"),
         STATUS_NULL(Const.ERROR_CODE,"商品状态不能为空"),
+        PARAMS_ALL_NULL(Const.ERROR_CODE,"参数不能全是空"),
 
         PRODUCT_NOT_EXIST(Const.ERROR_CODE,"产品不存在"),
+        PRODUCT_NOT_EXIST_2(Const.ERROR_CODE,"产品已下架"),
+        PRODUCT_NOT_EXIST_ALL(Const.ERROR_CODE,"所有产品已下架"),
 
         SELECT_ERROR(Const.ERROR_CODE,"查询失败"),
         UPDATE_ERROR(Const.ERROR_CODE,"更新失败"),
@@ -171,6 +204,54 @@ public class Const {
             return msg;
         }
     }
+    // 支付模块
+    public enum PayEnum{
+        PLATFORM_1(1, "支付宝"),
+        PLATFORM_2(2, "微信"),
+        POSTAGE_0(0, "包邮"),
+
+        ORDER_CREATE_ERROR(Const.ERROR_CODE, "订单生成失败"),
+        ORDER_USER_ERROR(Const.ERROR_CODE, "订单与用户不匹配"),
+
+        PAY_ERROR_1(Const.ERROR_CODE, "预下单失败"),
+        USER_ID_ERROR(Const.ERROR_CODE, "订单用户ID不一致"),
+        TOTAL_AMOUNT_ERROR(Const.ERROR_CODE, "订单金额不一致"),
+
+        UPDATE_ERROR(Const.ERROR_CODE, "订单支付更新失败"),
+
+        CODE_FILE_DELETE_ERROR(Const.ERROR_CODE, "二维码删除失败"),
+        ;
+        private Integer code;
+        private String msg;
+        private PayEnum(Integer code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+        public Integer getCode() {
+            return code;
+        }
+        public String getMsg() {
+            return msg;
+        }
+    }
+    // 支付信息表
+    public enum PayInfoEnum{
+
+        INSERT_ERROR(Const.ERROR_CODE, "新增支付信息失败");
+
+        private Integer code;
+        private String msg;
+        private PayInfoEnum(Integer code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+        public Integer getCode() {
+            return code;
+        }
+        public String getMsg() {
+            return msg;
+        }
+    }
     // 分类模块
     public enum CategoryEnum{
         ROOT_ID(0,"根节点"),
@@ -203,4 +284,56 @@ public class Const {
             return msg;
         }
     }
+    // 购物车
+    public enum CartEnum{
+        // 商品数量是否超过库存的标记
+        LIMIT_NUM_SUCCESS(Const.SUCCESS_CODE,"LIMIT_NUM_SUCCESS"),
+        LIMIT_NUM_FAIL(Const.ERROR_CODE,"LIMIT_NUM_FAIL"),
+        PRODUCT_CHECKED(1,"选中商品"),
+        PRODUCT_UNCHECKED(0,"取消选中商品"),
+        PRODUCT_NOT_EXIST(Const.ERROR_CODE, "该用户的购物车里没有该商品"),
+        PRODUCT_NOT_EXIST_2(Const.ERROR_CODE, "该用户的购物车里没有该商品"),
+        CHECKED_NULL(Const.ERROR_CODE, "未选中任何商品"),
+
+
+        SELECT_ERROR(Const.ERROR_CODE,"查询失败"),
+        UPDATE_ERROR(Const.ERROR_CODE,"更新失败"),
+
+        UPDATE_SUCCESS(Const.SUCCESS_CODE,"更新成功");
+
+        private Integer code;
+        private String msg;
+        private CartEnum(Integer code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+        public Integer getCode() {
+            return code;
+        }
+        public String getMsg() {
+            return msg;
+        }
+    }
+    // 收货地址模块
+    public enum ShippingEnum{
+        ID_NULL(Const.ERROR_CODE, "收货地址ID不能为空"),
+        SHIPPING_NOT_EXIST(Const.ERROR_CODE, "收货地址不存在"),
+        USER_NOT_SAME(Const.ERROR_CODE, "收货地址与用户ID不匹配"),
+
+        ;
+
+        private Integer code;
+        private String msg;
+        private ShippingEnum(Integer code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+        public Integer getCode() {
+            return code;
+        }
+        public String getMsg() {
+            return msg;
+        }
+    }
+
 }

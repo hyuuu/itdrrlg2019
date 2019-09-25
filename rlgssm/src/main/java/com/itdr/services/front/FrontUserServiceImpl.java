@@ -46,16 +46,7 @@ public class FrontUserServiceImpl implements FrontUserService {
         if (!user.getPassword().equals(md5Password)){
             return ResCode.error(Const.UserEnum.PASSWORD_ERROR.getMsg());
         }
-        // user存入session，loginResponse作为返回对象
-        User loginResponse = new User();
-        loginResponse.setId(user.getId());
-        loginResponse.setUsername(user.getUsername());
-        loginResponse.setEmail(user.getEmail());
-        loginResponse.setPhone(user.getPhone());
-        loginResponse.setCreateTime(user.getCreateTime());
-        loginResponse.setUpdateTime(user.getUpdateTime());
-        TokenCache.set(Const.TOKEN_PREFIX + Const.USER_LOGIN_SESSION, user);
-        return ResCode.success(loginResponse);
+        return ResCode.success(user);
     }
 
     /* 检查用户名或邮箱是否存在 */
@@ -200,7 +191,8 @@ public class FrontUserServiceImpl implements FrontUserService {
         if (i <= 0){
             return ResCode.error(Const.UserEnum.UPDATE_ERROR.getMsg());
         }
-        return ResCode.success(Const.SUCCESS_CODE,null,Const.UserEnum.UPDATE_SUCCESS.getMsg());
+        User userAfterUpdate = userMapper.selectByPrimaryKey(user.getId());
+        return ResCode.success(Const.SUCCESS_CODE, userAfterUpdate, Const.UserEnum.UPDATE_SUCCESS.getMsg());
     }
 
     /* 忘记密码 */
@@ -293,6 +285,4 @@ public class FrontUserServiceImpl implements FrontUserService {
         }
         return ResCode.success(Const.SUCCESS_CODE,null,Const.UserEnum.UPDATE_SUCCESS.getMsg());
     }
-
-
 }

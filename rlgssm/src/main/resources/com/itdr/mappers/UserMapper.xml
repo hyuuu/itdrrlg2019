@@ -110,9 +110,14 @@
       </if>
     </trim>
   </insert>
+
+  <!--根据ID更新email phone question answer-->
   <update id="updateByPrimaryKeySelective" parameterType="com.itdr.pojo.User">
     update neuedu_user
     <set>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
       <if test="email != null">
         email = #{email,jdbcType=VARCHAR},
       </if>
@@ -125,12 +130,11 @@
       <if test="answer != null">
         answer = #{answer,jdbcType=VARCHAR},
       </if>
-      <if test="updateTime != null">
         update_time = now(),
-      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
+
   <update id="updateByPrimaryKey" parameterType="com.itdr.pojo.User">
     update neuedu_user
     set username = #{username,jdbcType=VARCHAR},
@@ -141,8 +145,7 @@
       answer = #{answer,jdbcType=VARCHAR},
       role = #{role,jdbcType=INTEGER},
       status = #{status,jdbcType=INTEGER},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = #{updateTime,jdbcType=TIMESTAMP}
+      update_time = now()
     where id = #{id,jdbcType=INTEGER}
   </update>
 
@@ -179,16 +182,17 @@
   <!--根据用户名修改密码-->
   <update id="updateByUsernameAndPassword" parameterType="map">
     update neuedu_user
-    set password = #{password}
+    set password = #{password}, update_time = now()
     where username = #{username}
   </update>
 
   <!--根据用户名更新用户状态-->
   <update id="updateStatusByUsername" parameterType="map">
-    update neuedu_user set status = #{status} where username = #{username}
+    update neuedu_user set status = #{status}, update_time = now() where username = #{username}
   </update>
+
   <!--根据ID更新用户状态-->
   <update id="updateStatusById">
-    update neuedu_user set status = #{status} where id = #{id}
+    update neuedu_user set status = #{status}, update_time = now() where id = #{id}
   </update>
 </mapper>

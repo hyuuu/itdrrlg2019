@@ -32,4 +32,15 @@ public interface ProductMapper {
     List<Product> search(@Param("id")Integer id, @Param("name")String name);
     //根据id更新状态
     Integer updateStatusById(@Param("id") Integer id, @Param("status") Integer status);
+    // 按categoryId或keyword搜索产品列表，按column进行order排序，分页
+    List<Product> selectList(@Param("categoryId") Integer categoryId, @Param("keyword") String keyword);
+    // 根据条件动态查询商品详情
+    List<Product> selectDetail(@Param("id") Integer id, @Param("is_new") Integer is_new,
+                               @Param("is_hot") Integer is_hot, @Param("is_banner") Integer is_banner);
+
+    // 根据ID集合查询
+    List<Product> selectByIDs(List<Integer> productIDs);
+
+    // 根据ID更新库存
+    int updateStockById(@Param("userId") Integer userId, @Param("stock") Integer stock);
 }

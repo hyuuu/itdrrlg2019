@@ -35,8 +35,14 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public ResCode userList(Integer pageNum, Integer pageSize) {
-        int num = 0;
-        int size = 10;
+        if (pageNum != null && pageNum<0){
+            return ResCode.error(Const.ProductEnum.PAGE_NUM_LESS_ZERO.getMsg());
+        }
+        if (pageSize != null && pageSize<0){
+            return ResCode.error(Const.ProductEnum.PAGE_SIZE_LESS_ZERO.getMsg());
+        }
+        Integer num = Const.ProductEnum.PAGE_NUM.getCode();
+        Integer size = Const.ProductEnum.PAGE_SIZE.getCode();
         if (pageNum != null && pageNum != 0){
             num = pageNum;
         }

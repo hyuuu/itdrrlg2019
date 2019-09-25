@@ -39,4 +39,9 @@ public class Tools {
     public static String getVCode(){
         return ((int)((Math.random()*9+1)*100000))+"";
     }
+
+    /* 生成三位随机数 */
+    public static String get3Code(){
+        return ((int)((Math.random()*9+1)*100))+"";
+    }
 }

@@ -250,8 +250,60 @@
     </if>
   </select>
 
-  <!--根据id更新状态-->
+  <!--按categoryId或keyword搜索产品列表，按orderBy排序，分页-->
+  <!--SQL执行顺序应该是先排序再分页，order应该写在limit前面-->
+  <select id="selectList" parameterType="map" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from neuedu_product
+    <where>
+      <if test="categoryId != null">
+        category_id = #{categoryId}
+      </if>
+      <if test="keyword != null">
+        and name like "%"#{keyword}"%"
+      </if>
+        and status = 1
+    </where>
+  </select>
+
+  <!--根据条件动态查询商品详情-->
+  <select id="selectDetail" resultType="com.itdr.pojo.Product">
+    select <include refid="Base_Column_List"/>
+    from neuedu_product
+    <where>
+      <if test="id != null">
+        id = #{id}
+      </if>
+      <if test="is_new != null">
+        and is_new = #{is_new}
+      </if>
+      <if test="is_hot != null">
+        and is_hot = #{is_hot}
+      </if>
+      <if test="is_banner != null">
+        and is_banner = #{is_banner}
+      </if>
+    </where>
+  </select>
+
+  <!--根据ID集合查询-->
+  <select id="selectByIDs" parameterType="list" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from neuedu_product
+    where id in
+    <foreach collection="productIDs" item="productID" open="(" separator="," close=")">
+      #{productID}
+    </foreach>
+  </select>
+
+    <!--根据id更新状态-->
   <update id="updateStatusById" parameterType="map">
-    update neuedu_product set status = #{status} where id = #{id}
+    update neuedu_product set status = #{status}, update_time = now() where id = #{id}
+  </update>
+
+  <!--根据ID更新库存-->
+  <update id="updateStockById" parameterType="map">
+    update neuedu_product set stock = #{stock}, update_time = now() where id = #{userId}
   </update>
 </mapper>

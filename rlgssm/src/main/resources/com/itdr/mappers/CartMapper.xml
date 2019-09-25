@@ -19,18 +19,22 @@
     from neuedu_cart
     where id = #{id,jdbcType=INTEGER}
   </select>
+
+  <!--根据ID删除记录-->
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from neuedu_cart
     where id = #{id,jdbcType=INTEGER}
   </delete>
+
+  <!--在购物车里新增一条商品数据-->
   <insert id="insert" parameterType="com.itdr.pojo.Cart">
     insert into neuedu_cart (id, user_id, product_id, 
       quantity, checked, create_time, 
       update_time)
-    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{productId,jdbcType=INTEGER}, 
-      #{quantity,jdbcType=INTEGER}, #{checked,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP})
+    values (null, #{userId,jdbcType=INTEGER}, #{productId,jdbcType=INTEGER},
+      #{quantity,jdbcType=INTEGER}, 1, now(), now())
   </insert>
+
   <insert id="insertSelective" parameterType="com.itdr.pojo.Cart">
     insert into neuedu_cart
     <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -80,10 +84,12 @@
       </if>
     </trim>
   </insert>
+
+  <!--根据ID和userId动态更新购物车里的一条商品数据-->
   <update id="updateByPrimaryKeySelective" parameterType="com.itdr.pojo.Cart">
     update neuedu_cart
     <set>
-      <if test="userId != null">
+      <if test="userId != null and id != null">
         user_id = #{userId,jdbcType=INTEGER},
       </if>
       <if test="productId != null">
@@ -95,15 +101,18 @@
       <if test="checked != null">
         checked = #{checked,jdbcType=INTEGER},
       </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updateTime != null">
-        update_time = #{updateTime,jdbcType=TIMESTAMP},
-      </if>
+        update_time = now(),
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    <where>
+      <if test="id != null">
+        id = #{id,jdbcType=INTEGER}
+      </if>
+      <if test="userId != null">
+        and user_id = #{userId}
+      </if>
+    </where>
   </update>
+
   <update id="updateByPrimaryKey" parameterType="com.itdr.pojo.Cart">
     update neuedu_cart
     set user_id = #{userId,jdbcType=INTEGER},
@@ -114,4 +123,54 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <!--根据用户ID和商品ID查询-->
+  <select id="selectByUserIdAndProductId" parameterType="map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from neuedu_cart
+    where user_id = #{userId} and product_id = #{productId}
+  </select>
+
+  <!--根据用户ID查询-->
+  <select id="selectByUserID" parameterType="integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from neuedu_cart
+    where user_id = #{userId}
+  </select>
+
+  <!--查询userID的选中记录-->
+  <select id="selectCheck" parameterType="map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from neuedu_cart
+    where user_id = #{userId} and checked = #{checkedCode}
+  </select>
+
+  <!--根据userId和productIdList删除多条记录-->
+  <delete id="deleteByUserIdAndProductIdList" parameterType="map">
+    delete from neuedu_cart
+    <where>
+      <if test="productIdList != null">
+        product_id in
+        <foreach collection="productIdList" item="productId" open="(" separator="," close=")">
+          #{productId}
+        </foreach>
+      </if>
+      and user_id = #{userId}
+    </where>
+  </delete>
+  <delete id="deleteList" parameterType="map">
+    delete from neuedu_cart
+    <where>
+      <if test="productIDs != null">
+        product_id in
+        <foreach collection="productIDs" item="productId" open="(" separator="," close=")">
+          #{productId}
+        </foreach>
+      </if>
+      and user_id = #{userId}
+    </where>
+  </delete>
 </mapper>

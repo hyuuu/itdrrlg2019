@@ -4,8 +4,11 @@ import com.itdr.common.Const;
 import com.itdr.common.ResCode;
 import com.itdr.common.TokenCache;
 import com.itdr.pojo.User;
+import com.itdr.pojo.vo.UserDetailVO;
+import com.itdr.pojo.vo.UserVO;
 import com.itdr.services.front.FrontUserService;
 import com.itdr.utils.MD5Util;
+import com.itdr.utils.PoToVoUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,9 +40,10 @@ public class FrontUserController {
         if (!resCode.isSucess()){
             return resCode;
         }
-        User user = (User) TokenCache.get(Const.TOKEN_PREFIX + Const.USER_LOGIN_SESSION);
-        TokenCache.clearCache(Const.TOKEN_PREFIX + Const.USER_LOGIN_SESSION);
+        User user = (User) resCode.getData();
         session.setAttribute(Const.USER_LOGIN_SESSION,user);
+        UserVO userVO = PoToVoUtil.UserToUserVO(user);
+        resCode.setData(userVO);
         return resCode;
     }
 
@@ -68,14 +72,8 @@ public class FrontUserController {
         if (user == null){
             return ResCode.error(Const.UserEnum.USER_NOT_LOGIN.getMsg());
         }
-        User resUser = new User();
-        resUser.setId(user.getId());
-        resUser.setUsername(user.getUsername());
-        resUser.setEmail(user.getEmail());
-        resUser.setPhone(user.getPhone());
-        resUser.setCreateTime(user.getCreateTime());
-        resUser.setUpdateTime(user.getUpdateTime());
-        return ResCode.success(resUser);
+        UserVO userVO = PoToVoUtil.UserToUserVO(user);
+        return ResCode.success(userVO);
     }
 
     /* 获取当前登录用户的详细信息 */
@@ -85,7 +83,8 @@ public class FrontUserController {
         if (user == null){
             return ResCode.error(Const.UserEnum.USER_NOT_LOGIN.getMsg());
         }
-        return ResCode.success(user);
+        UserDetailVO userDetailVO = PoToVoUtil.UserToUserDetailVO(user);
+        return ResCode.success(userDetailVO);
     }
 
     /* 退出登录 */
@@ -108,7 +107,14 @@ public class FrontUserController {
         }
         user.setId(user1.getId());
         user.setUsername(user1.getUsername());
-        return frontUserService.updateInformation(user);
+        ResCode resCode = frontUserService.updateInformation(user);
+        if (!resCode.isSucess()){
+            return resCode;
+        }
+        User userAfterUpdate = (User) resCode.getData();
+        session.setAttribute(Const.USER_LOGIN_SESSION, userAfterUpdate);
+        resCode.setData(null);
+        return resCode;
     }
 
     /* 忘记密码 */

@@ -32,6 +32,12 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public ResCode list(Integer pageNum, Integer pageSize) {
+        if (pageNum != null && pageNum<0){
+            return ResCode.error(Const.ProductEnum.PAGE_NUM_LESS_ZERO.getMsg());
+        }
+        if (pageSize != null && pageSize<0){
+            return ResCode.error(Const.ProductEnum.PAGE_SIZE_LESS_ZERO.getMsg());
+        }
         Integer pNum = Const.ProductEnum.PAGE_NUM.getCode();
         Integer pSize = Const.ProductEnum.PAGE_SIZE.getCode();
         if (pageNum != null && pageNum != Const.ProductEnum.PAGE_NUM.getCode()){

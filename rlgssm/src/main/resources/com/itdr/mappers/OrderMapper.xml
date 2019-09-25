@@ -31,18 +31,16 @@
     delete from neuedu_order
     where id = #{id,jdbcType=INTEGER}
   </delete>
+
   <insert id="insert" parameterType="com.itdr.pojo.Order">
     insert into neuedu_order (id, user_id, order_no, 
       shipping_id, payment, payment_type, 
-      postage, status, payment_time, 
-      send_time, end_time, close_time, 
-      create_time, update_time)
-    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{orderNo,jdbcType=BIGINT}, 
+      postage, status, create_time, update_time)
+    values (null , #{userId,jdbcType=INTEGER}, #{orderNo,jdbcType=BIGINT},
       #{shippingId,jdbcType=INTEGER}, #{payment,jdbcType=DECIMAL}, #{paymentType,jdbcType=INTEGER}, 
-      #{postage,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{paymentTime,jdbcType=TIMESTAMP}, 
-      #{sendTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, #{closeTime,jdbcType=TIMESTAMP}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+      #{postage,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, now(), now())
   </insert>
+
   <insert id="insertSelective" parameterType="com.itdr.pojo.Order">
     insert into neuedu_order
     <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -134,6 +132,7 @@
       </if>
     </trim>
   </insert>
+
   <update id="updateByPrimaryKeySelective" parameterType="com.itdr.pojo.Order">
     update neuedu_order
     <set>
@@ -170,15 +169,11 @@
       <if test="closeTime != null">
         close_time = #{closeTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updateTime != null">
-        update_time = #{updateTime,jdbcType=TIMESTAMP},
-      </if>
+        update_time = now(),
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
+
   <update id="updateByPrimaryKey" parameterType="com.itdr.pojo.Order">
     update neuedu_order
     set user_id = #{userId,jdbcType=INTEGER},
@@ -214,6 +209,6 @@
 
   <!--根据订单号修改订单状态-->
   <update id="updateStatusByOrderNo" parameterType="map">
-    update neuedu_order set status = #{status} where order_no = #{orderNo}
+    update neuedu_order set status = #{status}, update_time = now() where order_no = #{orderNo}
   </update>
 </mapper>

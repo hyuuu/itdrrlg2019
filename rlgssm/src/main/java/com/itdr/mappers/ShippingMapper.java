@@ -9,6 +9,7 @@ public interface ShippingMapper {
 
     int insertSelective(Shipping record);
 
+    // 根据ID查询
     Shipping selectByPrimaryKey(Integer id);
 
     int updateByPrimaryKeySelective(Shipping record);

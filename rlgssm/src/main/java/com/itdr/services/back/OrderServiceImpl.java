@@ -31,6 +31,12 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public ResCode list(Integer pageNum, Integer pageSize) {
+        if (pageNum != null && pageNum<0){
+            return ResCode.error(Const.ProductEnum.PAGE_NUM_LESS_ZERO.getMsg());
+        }
+        if (pageSize != null && pageSize<0){
+            return ResCode.error(Const.ProductEnum.PAGE_SIZE_LESS_ZERO.getMsg());
+        }
         Integer pNum = Const.OrderEnum.PAGE_NUM.getCode();
         Integer pSize = Const.OrderEnum.PAGE_SIZE.getCode();
         if (pageNum != null && pageNum != Const.OrderEnum.PAGE_NUM.getCode()){

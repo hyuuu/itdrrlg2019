@@ -19,12 +19,15 @@
     id, user_id, receiver_name, receiver_phone, receiver_mobile, receiver_province, receiver_city, 
     receiver_district, receiver_address, receiver_zip, create_time, update_time
   </sql>
+
+  <!--根据ID查询-->
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from neuedu_shipping
     where id = #{id,jdbcType=INTEGER}
   </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from neuedu_shipping
     where id = #{id,jdbcType=INTEGER}
