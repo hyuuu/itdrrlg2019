@@ -26,4 +26,12 @@ public interface OrderMapper {
 
     // 根据订单号修改订单状态
     int updateStatusByOrderNo(@Param("orderNo") Long orderNo, @Param("status") Integer status);
+
+    // 根据用户ID查询订单列表
+    List<Order> selectByUserId(Integer userId);
+    // 根据订单号和用户ID查询订单列表
+    Order selectByOrderNoAndUserID(@Param("orderNo") Long orderNo, @Param("userId") Integer userId);
+
+    // 根据用户ID(userId)和订单号(orderNo)修改订单状态(status)
+    int updateStatusByOrderNoAndUserId(@Param("status") Integer status, @Param("orderNo") Long orderNo, @Param("userId") Integer userId);
 }

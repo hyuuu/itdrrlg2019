@@ -207,8 +207,29 @@
     where order_no = #{orderNo}
   </select>
 
+  <!--根据用户ID查询订单列表-->
+  <select id="selectByUserId" parameterType="integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from neuedu_order
+    where user_id = #{userId}
+  </select>
+  <!--根据订单号和用户ID查询订单列表-->
+  <select id="selectByOrderNoAndUserID" resultType="com.itdr.pojo.Order">
+    select
+    <include refid="Base_Column_List" />
+    from neuedu_order
+    where user_id = #{userId} and order_no = #{orderNo}
+  </select>
+
   <!--根据订单号修改订单状态-->
   <update id="updateStatusByOrderNo" parameterType="map">
     update neuedu_order set status = #{status}, update_time = now() where order_no = #{orderNo}
+  </update>
+  <!--根据用户ID(userId)和订单号(orderNo)修改订单状态(status)-->
+  <update id="updateStatusByOrderNoAndUserId" parameterType="map">
+    update neuedu_order
+    set status = #{status}, update_time = now()
+    where user_id = #{userId} and order_no = #{orderNo}
   </update>
 </mapper>

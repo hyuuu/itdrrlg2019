@@ -247,6 +247,7 @@ public class PoToVoUtil {
         orderVO.setCloseTime(order.getCloseTime());
         orderVO.setCreateTime(order.getCreateTime());
         orderVO.setOrderItemVOList(orderItemVOList);
+        orderVO.setImageHost(Const.imageHost);
         orderVO.setShippingId(shippingVO.getId());
         orderVO.setShippingVO(shippingVO);
         return orderVO;

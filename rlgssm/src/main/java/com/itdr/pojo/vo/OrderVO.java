@@ -43,6 +43,8 @@ public class OrderVO {
     private Date createTime;
     // 订单详细列表
     private List<OrderItemVO> orderItemVOList;
+    // 图片地址
+    private String imageHost;
     // 收获地址ID
     private Integer shippingId;
     // 收获地址VO

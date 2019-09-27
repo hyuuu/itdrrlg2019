@@ -168,6 +168,11 @@
     from neuedu_order_item
     where order_no = #{orderNo}
   </select>
+  <select id="selectByOrderNoAndUserID" parameterType="map" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from neuedu_order_item
+    where order_no = #{orderNo} and user_id = #{userId}
+  </select>
 
   <!--批量插入-->
   <insert id="insertList" parameterType="list">
@@ -182,4 +187,9 @@
     </foreach>
   </insert>
 
+  <!--根据用户ID和订单号删除订单详细信息-->
+  <delete id="deleteByOrderNoAndUserId" parameterType="map">
+    delete from neuedu_order_item
+    where user_id = #{userId} and order_no = #{orderNo}
+  </delete>
 </mapper>

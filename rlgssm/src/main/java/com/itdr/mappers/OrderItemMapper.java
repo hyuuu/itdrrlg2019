@@ -21,7 +21,11 @@ public interface OrderItemMapper {
 
     // 根据订单号查询订单详情
     List<OrderItem> selectByOrderNo(Long orderNo);
+    List<OrderItem> selectByOrderNoAndUserID(@Param("orderNo") Long orderNo, @Param("userId") Integer userId);
 
     // 批量插入
     int insertList(@Param("orderItemList") List<OrderItem> orderItemList);
+
+    // 根据用户ID和订单号删除订单详细信息
+    int deleteByOrderNoAndUserId(@Param("orderNo") Long orderNo, @Param("userId") Integer userId);
 }

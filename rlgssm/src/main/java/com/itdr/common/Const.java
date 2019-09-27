@@ -183,8 +183,16 @@ public class Const {
         ORDER_STATUS_10(Const.ERROR_CODE,"订单未付款"),
         ORDER_STATUS_20(Const.ERROR_CODE,"订单已付款"),
         ORDER_STATUS_40(Const.ERROR_CODE,"订单已发货"),
-        ORDER_STATUS_50(Const.ERROR_CODE,"订单已成功"),
-        ORDER_STATUS_60(Const.ERROR_CODE,"订单已关闭"),
+        ORDER_STATUS_50(Const.ERROR_CODE,"交易已成功"),
+        ORDER_STATUS_60(Const.ERROR_CODE,"交易已关闭"),
+
+        ORDER_CANCEL_0(Const.ERROR_CODE,"订单已取消，无需重复取消"),
+        ORDER_CANCEL_20(Const.ERROR_CODE,"订单已付款，无法取消"),
+        ORDER_CANCEL_40(Const.ERROR_CODE,"订单已发货，无法取消"),
+        ORDER_CANCEL_50(Const.ERROR_CODE,"交易已成功，无法取消"),
+        ORDER_CANCEL_60(Const.ERROR_CODE,"交易已关闭，无法取消"),
+
+        ORDER_DELETE_ERROR(Const.ERROR_CODE,"交易正在进行中，无法删除"),
 
         SELECT_ERROR(Const.ERROR_CODE,"查询失败"),
         UPDATE_ERROR(Const.ERROR_CODE,"更新失败"),
